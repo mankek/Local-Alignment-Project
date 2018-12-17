@@ -78,27 +78,28 @@ data_frame_create <- function(list_in) {
   align_df$scores <- as.character(align_df$scores)
   align_df$scores <- as.double(align_df$scores)
   test_list <- list(align_df, pair_ids)
-  return(align_df)
+  result = list(align_df, pair_ids)
+  return(result)
 }
 
 
-pair_ids_get <- function(list_in) {
-  #Return only pair-IDs
-  number_of_scores <- dim(list_in[[1]])
-  df_form_matrix <- matrix(ncol = 3, nrow = (number_of_scores[1] * number_of_scores[2]))
-  pair_ids <- vector()
-  index_3 <- 1
-  for (i in 1:length(list_in[[2]])) {
-    for (s in 1:length(list_in[[3]])) {
-      df_form_matrix[index_3, 1] <- list_in[[2]][i]
-      df_form_matrix[index_3, 2] <- list_in[[3]][s]
-      df_form_matrix[index_3, 3] <- list_in[[1]][s, i]
-      pair_ids[index_3] <- paste(list_in[[4]][i],list_in[[5]][s],sep = "-")
-      index_3 <- index_3 + 1
-    }
-  }
-  return(pair_ids)
-}
+# pair_ids_get <- function(list_in) {
+#   #Return only pair-IDs
+#   number_of_scores <- dim(list_in[[1]])
+#   df_form_matrix <- matrix(ncol = 3, nrow = (number_of_scores[1] * number_of_scores[2]))
+#   pair_ids <- vector()
+#   index_3 <- 1
+#   for (i in 1:length(list_in[[2]])) {
+#     for (s in 1:length(list_in[[3]])) {
+#       df_form_matrix[index_3, 1] <- list_in[[2]][i]
+#       df_form_matrix[index_3, 2] <- list_in[[3]][s]
+#       df_form_matrix[index_3, 3] <- list_in[[1]][s, i]
+#       pair_ids[index_3] <- paste(list_in[[4]][i],list_in[[5]][s],sep = "-")
+#       index_3 <- index_3 + 1
+#     }
+#   }
+#   return(pair_ids)
+# }
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -110,11 +111,11 @@ shinyServer(function(input, output) {
     })
     
     pair_id_v <- reactive({
-      pair_ids_get(mat_data())
+      data_frame_create(mat_data())[[2]]
     })
     
     plot_data <- reactive(({
-      data_frame_create(mat_data())
+      data_frame_create(mat_data())[[1]]
     }))
 
     output$p <- renderPlotly({
