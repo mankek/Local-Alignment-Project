@@ -1,0 +1,30 @@
+# Trace Back
+alignment_vector <- vector()
+alignment_sequence <- vector()
+max_scores <-  which(align_matrix == max(align_matrix), arr.ind = TRUE)
+option_1_indices <- max_scores[1, 1:2]
+alignment_score <- align_matrix[option_1_indices[1], option_1_indices[2]]
+alignment_vector[1] <- alignment_score
+index <- 2
+index_2 <- 1
+while(alignment_score != 0){
+  left_score <- align_matrix[option_1_indices[1],(option_1_indices[2]-1)]
+  up_score <- align_matrix[(option_1_indices[1]-1),option_1_indices[2]]
+  diagonal_score <- align_matrix[(option_1_indices[1]-1),(option_1_indices[2]-1)]
+  alignment_score <- max(c(left_score,up_score,diagonal_score))
+  alignment_vector[index] <- alignment_score
+  index<-index+1
+  if(alignment_score == left_score){
+    alignment_sequence[index_2] <- "-"
+    index_2<-index_2+1
+    option_1_indices[2] <- option_1_indices[2]-1
+  }else if(alignment_score == up_score){
+    alignment_sequence[index_2]<- "-"
+    index_2<-index_2+1
+    option_1_indices[1] <- option_1_indices[1]-1
+  }else if(alignment_score == diagonal_score){
+    alignment_sequence[index_2] <- row_names[option_1_indices[1]]
+    index_2<-index_2+1
+    option_1_indices <- option_1_indices - 1
+  }
+}
