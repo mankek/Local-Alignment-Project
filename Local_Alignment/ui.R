@@ -17,19 +17,12 @@ shinyUI(fluidPage(
   titlePanel("Local Alignment Heatmap"),
   
   # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       textInput("seq1",
-                   "Sequence 1:",
-                   value = "ATG"),
-       textInput("seq2",
-                  "Sequence 2:",
-                  value = "ATG")
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotlyOutput("p")
-    )
-  )
-))
+   textInput("seq1",
+               "Sequence 1:",
+               value = "ATG"),
+   textInput("seq2",
+              "Sequence 2:",
+              value = "ATG"),
+   plotlyOutput("p")
+)
+)
