@@ -83,43 +83,41 @@ data_frame_create <- function(list_in) {
 }
 
 
-# pair_ids_get <- function(list_in) {
-#   #Return only pair-IDs
-#   number_of_scores <- dim(list_in[[1]])
-#   df_form_matrix <- matrix(ncol = 3, nrow = (number_of_scores[1] * number_of_scores[2]))
-#   pair_ids <- vector()
-#   index_3 <- 1
-#   for (i in 1:length(list_in[[2]])) {
-#     for (s in 1:length(list_in[[3]])) {
-#       df_form_matrix[index_3, 1] <- list_in[[2]][i]
-#       df_form_matrix[index_3, 2] <- list_in[[3]][s]
-#       df_form_matrix[index_3, 3] <- list_in[[1]][s, i]
-#       pair_ids[index_3] <- paste(list_in[[4]][i],list_in[[5]][s],sep = "-")
-#       index_3 <- index_3 + 1
-#     }
-#   }
-#   return(pair_ids)
-# }
 
-# Define server logic required to draw a histogram
+# Define reactive components and rendering of plot
 shinyServer(function(input, output) {
   
+  output$map <- renderPlot({
+    
+    input$do
 
     # Sequences
-    mat_data <- reactive({
+    mat_data <- isolate({
+      validate(
+        need(input$seq1 != "", "Please input a sequence for Sequence 1"),
+        need(input$seq2 != "", "Please input a sequence for Sequence 2")
+      )
       matrix_create(input$seq1, input$seq2)
     })
     
-    pair_id_v <- reactive({
-      data_frame_create(mat_data())[[2]]
-    })
+    # pair_id_v <- isolate({
+    #   data_frame_create(mat_data)[[2]]
+    # })
     
-    plot_data <- reactive(({
-      data_frame_create(mat_data())[[1]]
+    labels_x <- vector()
+    for (i in 0:length(row.names(mat_data))){
+      labels_x <- c(labels_x, i = row.names(mat_data)[i])
+    }
+    
+    
+    plot_data <- isolate(({
+      data_frame_create(mat_data)[[1]]
     }))
 
-    output$p <- renderPlotly({
-      plot_ly(plot_data(), x = ~seq1, y = ~seq2, z = ~scores, type = "heatmap", text = ~paste('X-Y: ',pair_id_v())) %>%
-      layout(yaxis = list(autorange = "reversed"))
-    })
+    
+    ggplot(plot_data, aes(x = plot_data$seq1, y = plot_data$seq2, fill = plot_data$scores)) +
+      geom_raster() + 
+      scale_y_reverse() +
+      labs(x = "Sequence 1", y = "Sequence 2")
+  })
 })
