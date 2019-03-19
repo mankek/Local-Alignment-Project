@@ -1,6 +1,6 @@
 # Sequences
-seq_1 <- c("CGTGAATTCAT")
-seq_2 <- c("GACTTAC")
+seq_1 <- c("ATG")
+seq_2 <- c("ATG")
 seq_1_split <- strsplit(seq_1, "")
 seq_2_split <- strsplit(seq_2, "")
 #Forming Matrix
@@ -22,3 +22,6 @@ for(i in 2:dimensions[2]){
     align_matrix[n,i] <- max(c((score + align_matrix[(n-1),(i-1)])), align_matrix[n,(i-1)] + -4, align_matrix[(n-1),i] + -4, 0)
   }
 }
+
+align_matrix
+

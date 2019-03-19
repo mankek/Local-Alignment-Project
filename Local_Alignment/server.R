@@ -8,11 +8,9 @@
 #
 
 library(shiny)
-library(plotly)
+library(ggplot2)
 
-matrix_create <- function(in1, in2) {
-  seq_1 <- in1
-  seq_2 <- in2
+matrix_create <- function(seq_1, seq_2) {
   seq_1_split <- strsplit(seq_1, "")
   seq_2_split <- strsplit(seq_2, "")
   
@@ -36,26 +34,7 @@ matrix_create <- function(in1, in2) {
     }
   }
   
-  #Differentiate Nucleotide names
-  column_names_unique <- vector()
-  x_axis <- vector()
-  index <- 1
-  for (i in column_names) {
-    x_axis[index] <- i
-    n <- index
-    column_names_unique[index] <- n
-    index <- index+1
-  }
-  row_names_unique <- vector()
-  y_axis <- vector()
-  index_2 <- 1
-  for (i in row_names) {
-    y_axis[index_2] <- i
-    m <- index_2
-    row_names_unique[index_2] <- m
-    index_2 <- index_2+1
-  }
-  results <- list(align_matrix, column_names_unique, row_names_unique, x_axis, y_axis)
+  results <- list(align_matrix, row_names, column_names)
   return(results)
 }
 
@@ -63,23 +42,18 @@ data_frame_create <- function(list_in) {
   #Create Data-frame
   number_of_scores <- dim(list_in[[1]])
   df_form_matrix <- matrix(ncol = 3, nrow = (number_of_scores[1] * number_of_scores[2]))
-  pair_ids <- vector()
-  index_3 <- 1
-  for (i in 1:length(list_in[[2]])) {
-    for (s in 1:length(list_in[[3]])) {
-      df_form_matrix[index_3, 1] <- list_in[[2]][i]
-      df_form_matrix[index_3, 2] <- list_in[[3]][s]
-      df_form_matrix[index_3, 3] <- list_in[[1]][s, i]
-      pair_ids[index_3] <- paste(list_in[[4]][i],list_in[[5]][s],sep = "-")
-      index_3 <- index_3 + 1
+  index <- 1
+  for (i in 1:length(list_in[[3]])) {
+    for (s in 1:length(list_in[[2]])) {
+      df_form_matrix[index, 1] <- i
+      df_form_matrix[index, 2] <- s
+      df_form_matrix[index, 3] <- list_in[[1]][s, i]
+      index <- index + 1
     }
   }
   align_df <- data.frame(seq1 = df_form_matrix[,1], seq2 = df_form_matrix[,2], scores = df_form_matrix[,3])
   align_df$scores <- as.character(align_df$scores)
-  align_df$scores <- as.double(align_df$scores)
-  test_list <- list(align_df, pair_ids)
-  result = list(align_df, pair_ids)
-  return(result)
+  return(align_df)
 }
 
 
@@ -100,24 +74,25 @@ shinyServer(function(input, output) {
       matrix_create(input$seq1, input$seq2)
     })
     
-    # pair_id_v <- isolate({
-    #   data_frame_create(mat_data)[[2]]
-    # })
-    
-    labels_x <- vector()
-    for (i in 0:length(row.names(mat_data))){
-      labels_x <- c(labels_x, i = row.names(mat_data)[i])
-    }
-    
     
     plot_data <- isolate(({
-      data_frame_create(mat_data)[[1]]
+      data_frame_create(mat_data)
     }))
-
     
-    ggplot(plot_data, aes(x = plot_data$seq1, y = plot_data$seq2, fill = plot_data$scores)) +
-      geom_raster() + 
-      scale_y_reverse() +
-      labs(x = "Sequence 1", y = "Sequence 2")
+    ggplot(plot_data, aes(x = plot_data$seq1, y = plot_data$seq2, fill = as.double(plot_data$scores))) +
+      geom_raster() +
+      scale_y_reverse(name="Sequence 2", expand=c(0,0), minor_breaks=NULL, breaks=c(1:length(mat_data[[2]])), labels=mat_data[[2]]) +
+      scale_x_discrete(name="Sequence 1", position="top", expand=c(0,0), limits=c(1:length(mat_data[[3]])), breaks=c(1:length(mat_data[[3]])), labels=mat_data[[3]]) +
+      scale_fill_distiller(name="Score") +
+      geom_tile(colour="white", size=0.25) +
+      theme_classic(base_size = 12) +
+      theme(
+        legend.text=element_text(face = "bold"),
+        legend.key.size = unit(30, "pt"),
+        axis.ticks = element_line(size=0.4),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        axis.title.x.top = element_text()
+      )
   })
 })

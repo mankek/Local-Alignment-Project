@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-library(plotly)
+library(ggplot2)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -21,7 +21,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       textInput("seq1",
                 "Sequence 1:",
-                value = "ATG"),
+                value = "ATGTG"),
       
       textInput("seq2",
                 "Sequence 2:",
