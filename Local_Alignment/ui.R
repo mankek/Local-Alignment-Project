@@ -21,7 +21,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       textInput("seq1",
                 "Sequence 1:",
-                value = "ATGTG"),
+                value = "ATG"),
       
       textInput("seq2",
                 "Sequence 2:",
