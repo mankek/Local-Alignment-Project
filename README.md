@@ -5,7 +5,7 @@ Currently, the application is very rudimentary with no input validation and a ve
 Operation is very simple once the application is cloned locally; simply run it using RStudio or the 
 
 
-	shinyApp(ui = ui, server = server)
+	R -e shiny::runApp()
 
 command in your console.
 
